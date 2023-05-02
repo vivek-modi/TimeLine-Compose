@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
 data class TimeLineData(val items: List<Pair<String, String>>)
 
-private fun getItemList(): List<TimeLineData> {
+private fun getTimeLineDataList(): List<TimeLineData> {
     val firstList = listOf(
         Pair("Text 1", "app"),
         Pair("Text 2", "link"),
@@ -79,8 +79,7 @@ private fun getItemList(): List<TimeLineData> {
 @Composable
 fun CanvasView() {
     val titleTextMeasurer = rememberTextMeasurer()
-    val listOfPair = getItemList()
-
+    val timeLineList = getTimeLineDataList()
     val typeToColorMap = mapOf(
         "app" to Color.Black,
         "link" to Color.Blue
@@ -91,8 +90,11 @@ fun CanvasView() {
     }
     val endPadding = with(LocalDensity.current) { 10.dp.toPx() }
     val circleSize = with(LocalDensity.current) { 6.dp.toPx() }
+
     Column(Modifier.fillMaxSize()) {
-        listOfPair.forEachIndexed { index, timeLineDataItem ->
+
+        timeLineList.forEachIndexed { index, timeLineDataItem ->
+
             val multipleString = buildAnnotatedString {
                 timeLineDataItem.items.forEachIndexed { _, item ->
                     val (text, type) = item
@@ -101,16 +103,30 @@ fun CanvasView() {
                     }
                 }
             }
+
             val multipleTextLayoutResult = remember {
                 titleTextMeasurer.measure(multipleString, TextStyle(fontSize = 14.sp, lineHeight = 1.3.em))
             }
+
+            val canvasHeightInDp = LocalDensity.current.run {
+                titleTextLayoutResult.size.height.toDp() +
+                        multipleTextLayoutResult.size.height.toDp()
+            }
+            val viewMarginTop = LocalDensity.current.run {
+                24.dp.toPx()
+            }
+            val subTitleTopMargin = LocalDensity.current.run { 12.dp.toPx() }
+
             CanvasContent(
+                canvasHeightInDp,
+                viewMarginTop,
+                subTitleTopMargin,
                 titleTextLayoutResult,
                 multipleTextLayoutResult,
                 circleSize,
                 endPadding,
                 index != 0,
-                index != listOfPair.lastIndex,
+                index != timeLineList.lastIndex,
             )
         }
     }
@@ -119,6 +135,9 @@ fun CanvasView() {
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun CanvasContent(
+    canvasHeightInDp: Dp,
+    viewMarginTop: Float,
+    subTitleTopMargin: Float,
     titleTextLayoutResult: TextLayoutResult,
     multipleTextLayoutResult: TextLayoutResult,
     circleSize: Float,
@@ -126,19 +145,10 @@ fun CanvasContent(
     firstItem: Boolean,
     lastItem: Boolean,
 ) {
-    val heightInDp = LocalDensity.current.run {
-        titleTextLayoutResult.size.height.toDp() +
-                multipleTextLayoutResult.size.height.toDp()
-    }
-    val viewMarginTop = LocalDensity.current.run {
-        24.dp.toPx()
-    }
-    val subTitleTopMargin = LocalDensity.current.run { 12.dp.toPx() }
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
-            .height(heightInDp)
+            .height(canvasHeightInDp)
     ) {
         val circleX = (center.x / 2) + (titleTextLayoutResult.size.width / 2) - endPadding
         drawText(
