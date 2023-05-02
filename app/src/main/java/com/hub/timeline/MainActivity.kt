@@ -61,13 +61,17 @@ private fun getItemList(): List<TimeLineData> {
     )
     val thirdList = listOf(
         Pair("Text 1", "app"),
+    )
+    val fourList = listOf(
+        Pair("Text 1", "app"),
         Pair("Text 2", "link"),
         Pair("Text 3", "app"),
     )
     return listOf(
         TimeLineData(firstList),
         TimeLineData(secondList),
-        TimeLineData(thirdList)
+        TimeLineData(thirdList),
+        TimeLineData(fourList),
     )
 }
 
