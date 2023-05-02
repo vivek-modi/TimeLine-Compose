@@ -83,7 +83,6 @@ private fun getTimeLineDataList(): List<TimeLineData> {
         TimeLineData(emptyList()),
         TimeLineData(thirdList),
         TimeLineData(fourList),
-
     )
 }
 
